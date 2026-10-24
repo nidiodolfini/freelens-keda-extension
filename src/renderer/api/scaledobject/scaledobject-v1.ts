@@ -167,12 +167,23 @@ export class ScaledObject extends Renderer.K8sApi.KubeObject<
     return ScaledObject.normalizeList(object.status?.externalMetricNames, []);
   }
 
+  /** Pauses the target at its current replica count when "true" (KEDA 2.12 or newer). */
+  static readonly pausedAnnotation = "autoscaling.keda.sh/paused";
+
+  /** Pauses the target at the given replica count; wins over `pausedAnnotation` when both are set. */
+  static readonly pausedReplicasAnnotation = "autoscaling.keda.sh/paused-replicas";
+
   /**
-   * Whether the `autoscaling.keda.sh/paused-replicas` annotation is present on
-   * the object, which is what the pause/resume menu item writes.
+   * Whether one of the pause annotations is in effect on the object, which is
+   * what the menu items write. The controller parses `paused` as a boolean
+   * (`strconv.ParseBool`) and treats a value it cannot parse as paused, so
+   * only its false spellings count as not paused.
    */
   static getPausedAnnotation(object: ScaledObject): boolean {
-    return "autoscaling.keda.sh/paused-replicas" in (object.metadata.annotations ?? {});
+    const annotations = object.metadata.annotations ?? {};
+    if (ScaledObject.pausedReplicasAnnotation in annotations) return true;
+    const paused = annotations[ScaledObject.pausedAnnotation];
+    return paused !== undefined && !["0", "f", "false"].includes(paused.toLowerCase());
   }
 }
 

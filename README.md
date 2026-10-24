@@ -37,11 +37,15 @@ Each ScaledObject also gets a details panel in the drawer:
 - Conditions with their messages as tooltips, external metric names, original replica
   count, last active time and the pause state.
 
-**Pause / Resume Autoscaling**: the ScaledObject menu writes the
-`autoscaling.keda.sh/paused-replicas` annotation — the same as
-`kubectl annotate so <name> autoscaling.keda.sh/paused-replicas=0 --overwrite`. Pausing
-scales the target down to the given replicas and freezes it there; resuming removes the
-annotation (a `null` in the merge patch) so the controller scales normally again.
+**Pause / Scale to Zero / Resume Autoscaling**: the ScaledObject menu writes the pause
+annotations the controller reads, the same as `kubectl annotate so <name> ...`:
+
+- **Pause Autoscaling** sets `autoscaling.keda.sh/paused=true`, which freezes the target at
+  its current replica count (KEDA 2.12 or newer).
+- **Scale to Zero** sets `autoscaling.keda.sh/paused-replicas=0`, which scales the target
+  down to zero replicas and keeps it there. It asks for confirmation first.
+- **Resume Autoscaling** removes both annotations (a `null` in the merge patch) so the
+  controller scales normally again. It is the only item shown while the object is paused.
 
 ## Requirements
 
@@ -74,7 +78,8 @@ To install from a local checkout instead (for development), see
    `example-app-cpu`; each details panel shows its triggers, and the "Scaling Events"
    section fills in as the controller reconciles.
 
-3. Open the menu of a ScaledObject and click **Pause Autoscaling**; the Status column
+3. Open the menu of a ScaledObject and click **Pause Autoscaling** (keeps the current
+   replicas) or **Scale to Zero** (confirms, then scales to zero); the Status column
    switches to `Paused` once the controller applies the annotation, and
    **Resume Autoscaling** restores normal scaling.
 

@@ -135,10 +135,17 @@ function KubeObjectListLayout({ store, renderTableContents }: KubeObjectListLayo
   );
 }
 
+// Only the `open` static the menu items call; tests spy on it and run the
+// `ok` callback they are given.
+const ConfirmDialog = {
+  open: vi.fn(),
+};
+
 export const Renderer = {
   Component: {
     Badge,
     BadgeBoolean,
+    ConfirmDialog,
     DrawerItem,
     Icon,
     KubeObjectAge,

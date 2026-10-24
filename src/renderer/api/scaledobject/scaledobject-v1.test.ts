@@ -215,19 +215,33 @@ describe("ScaledObject (v1alpha1)", () => {
   });
 
   describe("getPausedAnnotation", () => {
-    it("is true when the paused-replicas annotation is present", () => {
-      const object = new ScaledObject({
+    const buildAnnotated = (annotations: Record<string, string>) =>
+      new ScaledObject({
         apiVersion: "keda.sh/v1alpha1",
         kind: "ScaledObject",
         metadata: {
           name: "example-app",
           namespace: "default",
           selfLink: "/apis/keda.sh/v1alpha1/namespaces/default/scaledobjects/example-app",
-          annotations: { "autoscaling.keda.sh/paused-replicas": "0" },
+          annotations,
         },
         spec: { scaleTargetRef: { name: "example-app" }, triggers: [{ type: "cpu" }] },
       });
-      expect(ScaledObject.getPausedAnnotation(object)).toBe(true);
+
+    it("is true when the paused-replicas annotation is present", () => {
+      expect(ScaledObject.getPausedAnnotation(buildAnnotated({ "autoscaling.keda.sh/paused-replicas": "0" }))).toBe(
+        true,
+      );
+    });
+
+    it("is true when the paused annotation is true", () => {
+      expect(ScaledObject.getPausedAnnotation(buildAnnotated({ "autoscaling.keda.sh/paused": "true" }))).toBe(true);
+    });
+
+    // The controller parses the value as a boolean: "false" resumes, which KEDA documents as an alternative to
+    // removing the annotation.
+    it("is false when the paused annotation is false", () => {
+      expect(ScaledObject.getPausedAnnotation(buildAnnotated({ "autoscaling.keda.sh/paused": "False" }))).toBe(false);
     });
 
     it("is false when the annotation is absent", () => {
