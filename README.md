@@ -125,10 +125,6 @@ upstream template:
   `sass-embedded` (which spawns the Dart Sass binary), and in-process TypeScript
   transpilation of the electron-vite config instead of the esbuild service (which spawns
   a binary). Run it from this directory: `node ..\.tools\patch-vite.mjs`.
-- The electron-vite config therefore does not use `@vitejs/plugin-react` (the config's
-  CommonJS loader cannot `require()` the plugin's ESM graph with top-level `await`); JSX uses
-  Vite's native automatic transform (`react/jsx-runtime` mapped to the host global). The
-  plugin stays as a devDependency to mirror the fluxcd extension, and knip ignores it.
 - `test:unit` uses `--pool=threads` and `knip:check` uses `&&` instead of the parallel
   regex script, both because of the same spawn restriction.
 - `biome:*` and `knip:*` download via `pnpm dlx`, whose default cache lives in

@@ -54,10 +54,6 @@
     "mobx",
     "mobx-react",
     "react",
-    // @vitejs/plugin-react is declared to mirror the fluxcd extension: it is
-    // used in electron.vite configs on machines without the sandbox, but the
-    // sandboxed config here loads without it
-    "@vitejs/plugin-react",
     // the runtime peer of @testing-library/react, which the jsdom tests mount
     // through; no test imports it by name
     "react-dom"

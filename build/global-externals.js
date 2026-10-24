@@ -25,7 +25,6 @@
 // from the installed package, with no hardcoded lists.
 
 const fs = require("node:fs");
-const path = require("node:path");
 
 // electron-vite bundles this config helper before running it, so __dirname is
 // unreliable. Builds always run from the project root, so use the cwd.
@@ -75,33 +74,14 @@ const RESERVED = new Set([
   "yield",
 ]);
 
-function packageNameOf(id) {
-  const parts = id.split("/");
-  return id.startsWith("@") ? parts.slice(0, 2).join("/") : parts[0];
-}
-
-// Resolve the on-disk entry of a module, falling back to the pnpm virtual store
-// for host-only peer dependencies (react-dom, react-router-dom) that are not
-// hoisted to the project root.
+// Resolve the on-disk entry of a module. The layout is hoisted (nodeLinker in
+// pnpm-workspace.yaml), so every host module resolves from the project root.
 function resolveEntry(id) {
   try {
     return require.resolve(id, { paths: [ROOT] });
-  } catch {}
-  const pnpmDir = path.join(ROOT, "node_modules", ".pnpm");
-  let entries = [];
-  try {
-    entries = fs.readdirSync(pnpmDir);
   } catch {
     return null;
   }
-  const prefix = `${packageNameOf(id).replace(/\//g, "+")}@`;
-  for (const dir of entries.filter((e) => e.startsWith(prefix)).sort()) {
-    const base = path.join(pnpmDir, dir, "node_modules", packageNameOf(id));
-    try {
-      return require.resolve(id, { paths: [path.dirname(base)] });
-    } catch {}
-  }
-  return null;
 }
 
 // Extract export names from a CJS/webpack bundle without executing it. Some host
