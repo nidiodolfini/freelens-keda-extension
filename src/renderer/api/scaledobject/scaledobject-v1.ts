@@ -128,19 +128,43 @@ export class ScaledObject extends Renderer.K8sApi.KubeObject<
   }
 
   /**
+   * Normalizes a status list field: KEDA versions differ on the JSON shape of
+   * these fields, recent releases write an array, older ones a comma-separated
+   * string ("cpu,memory"). An array passes through, a string is split, and a
+   * missing value yields the fallback (the spec-derived list, or empty).
+   */
+  private static normalizeList(value: string | string[] | null | undefined, fallback: string[]): string[] {
+    if (Array.isArray(value)) return value;
+    if (typeof value === "string") {
+      return value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+    return fallback;
+  }
+
+  /**
    * The TRIGGERS column of `kubectl get so`: the scaler types, preferring the
    * list the controller wrote into the status over the one in the spec.
    */
   static getTriggerTypes(object: ScaledObject): string[] {
-    return object.status?.triggersTypes ?? object.spec.triggers.map((trigger) => trigger.type);
+    return ScaledObject.normalizeList(
+      object.status?.triggersTypes,
+      object.spec.triggers.map((trigger) => trigger.type),
+    );
   }
 
   static getTriggerSummary(object: ScaledObject): string {
     return ScaledObject.getTriggerTypes(object).join(", ");
   }
 
-  static getAuthenticationTypes(object: ScaledObject): string[] | undefined {
-    return object.status?.authenticationsTypes;
+  static getAuthenticationTypes(object: ScaledObject): string[] {
+    return ScaledObject.normalizeList(object.status?.authenticationsTypes, []);
+  }
+
+  static getExternalMetricNames(object: ScaledObject): string[] {
+    return ScaledObject.normalizeList(object.status?.externalMetricNames, []);
   }
 
   /**

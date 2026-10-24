@@ -68,8 +68,11 @@ export interface ScaledObjectStatus {
   scaleTargetKind?: string;
   originalReplicaCount?: number;
   lastActiveTime?: string;
-  externalMetricNames?: string[];
-  triggersTypes?: string[];
-  authenticationsTypes?: string[];
+  // KEDA versions differ on the JSON shape of these: recent releases write
+  // arrays, older ones a comma-separated string ("cpu,memory"). Both are
+  // accepted and normalized by the model's static helpers.
+  externalMetricNames?: string | string[];
+  triggersTypes?: string | string[];
+  authenticationsTypes?: string | string[];
   conditions?: KedaCondition[];
 }

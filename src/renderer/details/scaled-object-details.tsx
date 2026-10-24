@@ -150,7 +150,9 @@ export const ScaledObjectDetails = observer(({ object }: ScaledObjectDetailsProp
           />
         ))}
       </DrawerItem>
-      <DrawerItem name="External Metric Names">{object.status?.externalMetricNames?.join(", ") ?? "-"}</DrawerItem>
+      <DrawerItem name="External Metric Names">
+        {ScaledObject.getExternalMetricNames(object).join(", ") || "-"}
+      </DrawerItem>
       <DrawerItem name="Original Replica Count">{object.status?.originalReplicaCount ?? "-"}</DrawerItem>
       <DrawerItem name="Last Active Time">{object.status?.lastActiveTime ?? "-"}</DrawerItem>
       <DrawerItem name="Paused">{ScaledObject.getPausedAnnotation(object) ? "Yes" : "No"}</DrawerItem>

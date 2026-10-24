@@ -147,6 +147,31 @@ describe("ScaledObject (v1alpha1)", () => {
       );
       expect(ScaledObject.getTriggerSummary(object)).toBe("cpu, memory");
     });
+
+    it("splits the comma-separated string some KEDA versions write into the status", () => {
+      const object = buildScaledObject(
+        { scaleTargetRef: { name: "example-app" }, triggers: [{ type: "cpu" }] },
+        { triggersTypes: "cpu,memory,prometheus" },
+      );
+      expect(ScaledObject.getTriggerTypes(object)).toEqual(["cpu", "memory", "prometheus"]);
+      expect(ScaledObject.getTriggerSummary(object)).toBe("cpu, memory, prometheus");
+    });
+
+    it("trims and drops empty items of a string status value", () => {
+      const object = buildScaledObject(
+        { scaleTargetRef: { name: "example-app" }, triggers: [{ type: "cpu" }] },
+        { triggersTypes: " cpu , ,cron " },
+      );
+      expect(ScaledObject.getTriggerTypes(object)).toEqual(["cpu", "cron"]);
+    });
+
+    it("falls back to the spec triggers when the status has no types", () => {
+      const object = buildScaledObject(
+        { scaleTargetRef: { name: "example-app" }, triggers: [{ type: "cpu" }] },
+        { triggersTypes: undefined },
+      );
+      expect(ScaledObject.getTriggerSummary(object)).toBe("cpu");
+    });
   });
 
   describe("getScaleTarget", () => {
@@ -169,6 +194,23 @@ describe("ScaledObject (v1alpha1)", () => {
     it("defaults the kind to Deployment", () => {
       const object = buildScaledObject({ scaleTargetRef: { name: "example-app" }, triggers: [{ type: "cpu" }] });
       expect(ScaledObject.getScaleTarget(object)).toBe("Deployment/example-app");
+    });
+  });
+
+  describe("status list normalization", () => {
+    it("splits string authentication types and metric names", () => {
+      const object = buildScaledObject(
+        { scaleTargetRef: { name: "example-app" }, triggers: [{ type: "cpu" }] },
+        { authenticationsTypes: "aws-keda-auth", externalMetricNames: "s0-cpu,s0-memory" },
+      );
+      expect(ScaledObject.getAuthenticationTypes(object)).toEqual(["aws-keda-auth"]);
+      expect(ScaledObject.getExternalMetricNames(object)).toEqual(["s0-cpu", "s0-memory"]);
+    });
+
+    it("returns an empty list when the status has none", () => {
+      const object = buildScaledObject({ scaleTargetRef: { name: "example-app" }, triggers: [{ type: "cpu" }] });
+      expect(ScaledObject.getAuthenticationTypes(object)).toEqual([]);
+      expect(ScaledObject.getExternalMetricNames(object)).toEqual([]);
     });
   });
 
