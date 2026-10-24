@@ -172,6 +172,6 @@ Trusted Publishing / provenance).
 
 ## License
 
-MIT. The sidebar icon is the official KEDA logo
-([`kedacore/keda` `images/logos/keda-icon-black.svg`](https://github.com/kedacore/keda/blob/main/images/logos/keda-icon-black.svg),
-Apache-2.0), recolored with `currentColor` so it follows the Freelens theme.
+MIT. The sidebar icon is the official KEDA logo (Kubernetes-style heptagon with the KEDA
+lettering, Apache-2.0), recolored with `currentColor` and with the white knockout converted
+to an SVG mask so it follows the Freelens theme.
