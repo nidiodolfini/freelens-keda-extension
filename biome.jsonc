@@ -32,6 +32,7 @@
       "!**/build/**",
       "!**/dist/**",
       "!**/out/**",
+      "!**/*.svg",
       // Local package-manager caches of the sandboxed install, which the VCS
       // ignore file cannot cover when no git binary is available to Biome.
       "!**/.pnpm-store/**",

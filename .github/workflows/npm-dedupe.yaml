@@ -21,13 +21,12 @@ jobs:
     environment: automated
     timeout-minutes: 10
 
-    if: github.event_name != 'issue_comment' || (startsWith(github.event.issue.title, 'Automated npm dedupe') && contains(github.event.comment.body, '/rerun'))
+    if: github.event_name != 'issue_comment' || (startsWith(github.event.issue.title, 'Automated npm dedupe') && contains(github.event.comment.body, '/rerun') && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association))
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Setup node
@@ -82,6 +81,7 @@ jobs:
           default_author: github_actions
           message: Automated npm dedupe
           new_branch: automated/npm-dedupe
+          fetch: false
           push: origin automated/npm-dedupe --set-upstream --force
 
       - name: Create pull request

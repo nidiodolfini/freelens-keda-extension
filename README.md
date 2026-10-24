@@ -37,11 +37,15 @@ Each ScaledObject also gets a details panel in the drawer:
 - Conditions with their messages as tooltips, external metric names, original replica
   count, last active time and the pause state.
 
-**Pause / Resume Autoscaling**: the ScaledObject menu writes the
-`autoscaling.keda.sh/paused-replicas` annotation — the same as
-`kubectl annotate so <name> autoscaling.keda.sh/paused-replicas=0 --overwrite`. Pausing
-scales the target down to the given replicas and freezes it there; resuming removes the
-annotation (a `null` in the merge patch) so the controller scales normally again.
+**Pause / Scale to Zero / Resume Autoscaling**: the ScaledObject menu writes the pause
+annotations the controller reads, the same as `kubectl annotate so <name> ...`:
+
+- **Pause Autoscaling** sets `autoscaling.keda.sh/paused=true`, which freezes the target at
+  its current replica count (KEDA 2.12 or newer).
+- **Scale to Zero** sets `autoscaling.keda.sh/paused-replicas=0`, which scales the target
+  down to zero replicas and keeps it there. It asks for confirmation first.
+- **Resume Autoscaling** removes both annotations (a `null` in the merge patch) so the
+  controller scales normally again. It is the only item shown while the object is paused.
 
 ## Requirements
 
@@ -74,7 +78,8 @@ To install from a local checkout instead (for development), see
    `example-app-cpu`; each details panel shows its triggers, and the "Scaling Events"
    section fills in as the controller reconciles.
 
-3. Open the menu of a ScaledObject and click **Pause Autoscaling**; the Status column
+3. Open the menu of a ScaledObject and click **Pause Autoscaling** (keeps the current
+   replicas) or **Scale to Zero** (confirms, then scales to zero); the Status column
    switches to `Paused` once the controller applies the annotation, and
    **Resume Autoscaling** restores normal scaling.
 
@@ -120,10 +125,6 @@ upstream template:
   `sass-embedded` (which spawns the Dart Sass binary), and in-process TypeScript
   transpilation of the electron-vite config instead of the esbuild service (which spawns
   a binary). Run it from this directory: `node ..\.tools\patch-vite.mjs`.
-- The electron-vite config therefore does not use `@vitejs/plugin-react` (the config's
-  CommonJS loader cannot `require()` the plugin's ESM graph with top-level `await`); JSX uses
-  Vite's native automatic transform (`react/jsx-runtime` mapped to the host global). The
-  plugin stays as a devDependency to mirror the fluxcd extension, and knip ignores it.
 - `test:unit` uses `--pool=threads` and `knip:check` uses `&&` instead of the parallel
   regex script, both because of the same spawn restriction.
 - `biome:*` and `knip:*` download via `pnpm dlx`, whose default cache lives in

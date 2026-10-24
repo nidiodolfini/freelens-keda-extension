@@ -1,5 +1,6 @@
 declare const classNames: {
   readonly page: "page";
+  readonly tableCell: "tableCell";
   readonly scaleTarget: "scaleTarget";
   readonly min: "min";
   readonly max: "max";

@@ -1,10 +1,9 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 
-// No @vitejs/plugin-react here: Vite's built-in transform already handles the
-// JSX of the component tests with the automatic runtime (the same transform
-// the electron-vite build uses for the renderer), and loading the plugin makes
-// knip fail to read this config.
+// Vite's built-in transform handles the JSX of the component tests with the
+// automatic runtime, the same transform the electron-vite build uses for the
+// renderer, so no React plugin is needed.
 export default defineConfig({
   test: {
     // Default to a Node environment. Tests that render React components opt into
