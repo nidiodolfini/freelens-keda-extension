@@ -1,0 +1,71 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema-jsonc.json",
+
+  // The extension is not a library: its entry points are the `main` and
+  // `renderer` manifest fields, which point at build output, and knip does not
+  // read `renderer` at all, so the sources are listed instead. The Vitest
+  // plugin adds vitest.config.ts and the test files.
+  "entry": [
+    "electron.vite.config.js",
+    "src/main/index.ts!",
+    "src/renderer/index.tsx!",
+    // the Vitest alias for @freelensapp/extensions, which knip does not follow
+    "test/freelens-extensions.ts"
+  ],
+  "project": [
+    "*.{js,mjs,ts}",
+    "build/*.js",
+    "src/**/*.{scss,ts,tsx}!",
+    // the CSS module declarations. TypeScript reaches them through
+    // allowArbitraryExtensions, while knip resolves `import styles from
+    // "./x.module.scss"` to the stylesheet, so it would report them as unused
+    "!src/**/*.d.scss.ts",
+    "test/**/*.ts"
+  ],
+
+  // The Vite plugin adds the renderer entry of electron.vite.config.js as an
+  // entry of its own, which is not a production one, and it replaces the
+  // `src/renderer/index.tsx!` above: the --production pass would then skip the
+  // whole renderer. electron.vite.config.js is listed as an entry instead.
+  "vite": false,
+
+  // Trunk runs SVGO, so no dependency turns on the plugin that finds
+  // svgo.config.mjs.
+  "svgo": true,
+
+  // The build output. The `main` field of package.json makes
+  // out/main/index.js an entry once it exists, and the `knip` script runs with
+  // --no-gitignore, so after `pnpm build` knip would report what the bundle
+  // inlines from its libraries, such as a binary a bundled library spawns.
+  "ignore": ["out/**"],
+
+  // Binaries that no dependency provides: yq, which the workflows call, comes
+  // from mise (see mise.toml).
+  "ignoreBinaries": ["yq"],
+
+  "ignoreDependencies": [
+    // host-provided modules. The bundle maps them onto global variables of the
+    // host (see build/global-externals.js), and Freelens installs no
+    // dependencies of an extension, so they are declared as devDependencies
+    // for their types alone, which the --production --strict pass reports as
+    // unlisted
+    "@freelensapp/extensions",
+    "@types/react",
+    "mobx",
+    "mobx-react",
+    "react",
+    // @vitejs/plugin-react is declared to mirror the fluxcd extension: it is
+    // used in electron.vite configs on machines without the sandbox, but the
+    // sandboxed config here loads without it
+    "@vitejs/plugin-react",
+    // the runtime peer of @testing-library/react, which the jsdom tests mount
+    // through; no test imports it by name
+    "react-dom"
+  ],
+
+  "typescript": {
+    "config": ["tsconfig.json"]
+  },
+
+  "exclude": ["exports"]
+}

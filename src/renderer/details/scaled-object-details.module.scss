@@ -1,0 +1,40 @@
+.eventsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+
+  th {
+    text-align: left;
+    color: var(--textColorTertiary);
+    font-weight: 500;
+    padding: 4px 8px;
+  }
+
+  td {
+    padding: 4px 8px;
+    vertical-align: top;
+    border-top: 1px solid var(--borderFaintColor);
+  }
+
+  .eventsType {
+    width: 72px;
+  }
+
+  .eventsReason {
+    width: 120px;
+  }
+
+  .eventsMessage {
+    word-break: break-word;
+  }
+
+  .eventsCount {
+    width: 48px;
+    text-align: right;
+  }
+
+  .eventsLastSeen {
+    width: 140px;
+    white-space: nowrap;
+  }
+}

@@ -1,0 +1,39 @@
+.page {
+  :global(.TableCell) {
+    &.scaleTarget {
+      flex-grow: 0.9;
+    }
+
+    &.min {
+      flex-grow: 0.2;
+    }
+
+    &.max {
+      flex-grow: 0.2;
+    }
+
+    &.triggers {
+      flex-grow: 0.9;
+    }
+
+    &.status {
+      flex-grow: 0.7;
+    }
+
+    &.ready {
+      flex-grow: 0.3;
+    }
+
+    &.active {
+      flex-grow: 0.3;
+    }
+
+    &.fallback {
+      flex-grow: 0.4;
+    }
+
+    &.age {
+      flex-grow: 0.3;
+    }
+  }
+}
